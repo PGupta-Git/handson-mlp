@@ -62,6 +62,7 @@ dependencies = [
     "urlextract>=1.9.0,<2.0.0",
     "soundfile>=0.13.1",
     "polars>=1.35.2",
+    "seaborn>=0.13.2",
 ]
 
 [project.optional-dependencies]
