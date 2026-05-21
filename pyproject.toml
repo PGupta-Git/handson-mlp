@@ -63,6 +63,7 @@ dependencies = [
     "soundfile>=0.13.1",
     "polars>=1.35.2",
     "seaborn>=0.13.2",
+    "duckdb>=1.5.3",
 ]
 
 [project.optional-dependencies]
