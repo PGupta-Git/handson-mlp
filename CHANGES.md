@@ -1,5 +1,20 @@
 # HOML PyTorch #1 versus HOML Keras & TensorFlow #3
 
+> **About this checkout:** this file describes the book-level changes from the upstream project. The current repository branch is the community-maintained [Polars port](https://github.com/PGupta-Git/handson-mlp/tree/polars_integration) of [ageron/handson-mlp](https://github.com/ageron/handson-mlp). It tracks upstream while modernizing dataframe workflows for Polars 2.x and compatible versions of scikit-learn and the visualization stack. The upstream README link for the fork is proposed in [PR #41](https://github.com/ageron/handson-mlp/pull/41).
+
+## Polars fork maintenance changes
+
+The `polars_integration` branch keeps the upstream material intact while updating integration points that changed in the surrounding ecosystem:
+
+* dataframe workflows use Polars 2.x where the fork replaces pandas, while `tools_pandas.ipynb` remains as the upstream pandas reference;
+* scikit-learn is kept at 1.9.1 or newer so Polars input/output uses the current Narwhals interoperability path;
+* Matplotlib and vector-oriented Seaborn calls consume Polars `Series` directly instead of converting plotting data through pandas;
+* direct runtime dependencies used by the notebooks, including PyArrow and Stable-Baselines3's Rich progress output, are declared explicitly;
+* the PyTorch family is currently capped below 2.10 because Appendix B still demonstrates eager-mode `torch.ao.quantization`, which PyTorch plans to remove in 2.10; and
+* external-service examples are kept executable with current public model/API identifiers, while local credentials remain outside version control.
+
+The committed notebook outputs have been regenerated sequentially from the locked Python 3.12 environment and checked for execution errors.
+
 I wrote three TensorFlow (TF) editions of this book, published by O'Reilly in 2017, 2019, and 2022. If you have already read the latest TensorFlow edition of this book, here are the main changes you will find in this book (for changes between editions 1 and 2, see https://homl.info/changes2, and for changes between editions 2 and 3, see https://homl.info/changes3):
 
 * All the code in the book was updated to recent library versions.

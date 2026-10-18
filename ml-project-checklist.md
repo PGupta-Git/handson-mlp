@@ -1,3 +1,5 @@
+> **Polars fork note:** this checklist is data-library agnostic. In the maintained [Polars fork](https://github.com/PGupta-Git/handson-mlp/tree/polars_integration), the accompanying notebook examples use Polars 2.x for dataframe workflows. The upstream project remains [ageron/handson-mlp](https://github.com/ageron/handson-mlp), with the fork link proposed upstream in [PR #41](https://github.com/ageron/handson-mlp/pull/41).
+
 This checklist can guide you through your Machine Learning projects. There are eight main steps:  
 
 1. Frame the problem and look at the big picture.  

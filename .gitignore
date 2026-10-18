@@ -19,3 +19,8 @@ dist/
 wheels/
 *.egg-info
 .venv
+
+# Notebook-generated runtime artifacts
+/cars.mp4
+/yolov9m.pt
+/runs/

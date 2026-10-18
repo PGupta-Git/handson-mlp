@@ -1,18 +1,20 @@
 # Hands-On Machine Learning in Docker
 
+These Docker instructions also apply to the maintained [Polars fork](https://github.com/PGupta-Git/handson-mlp/tree/polars_integration) of [ageron/handson-mlp](https://github.com/ageron/handson-mlp). For the Polars fork, build the image from the local `polars_integration` checkout so the container uses the fork's Polars/scikit-learn lockfile. The upstream README-link proposal is [PR #41](https://github.com/ageron/handson-mlp/pull/41).
+
 If you would like to run and tweak the book's notebooks in a Docker container, you're in the right place!
 
 ## Prerequisites
 
 You must first [Install Docker](https://docs.docker.com/engine/installation/).
 
-If you have an Nvidia GPU and you're on Linux (or [WSL on Windows](https://learn.microsoft.com/en-us/windows/wsl/install)), then you can use your GPU inside the Docker container. For this, you must ensure that you have the [latest drivers for your GPU](https://www.nvidia.com/drivers/), and install the [Nvidia Container Toolkit[(https://github.com/NVIDIA/nvidia-container-toolkit) so Docker can access the GPU.
+If you have an Nvidia GPU and you're on Linux (or [WSL on Windows](https://learn.microsoft.com/en-us/windows/wsl/install)), then you can use your GPU inside the Docker container. For this, you must ensure that you have the [latest drivers for your GPU](https://www.nvidia.com/drivers/), and install the [Nvidia Container Toolkit](https://github.com/NVIDIA/nvidia-container-toolkit) so Docker can access the GPU.
 
 Below, I will assume that your Docker setup is functional and supports your GPU (if any).
 
 ## Usage
 
-You can either download one of the images that I built and uploaded to docker.io, or you can build your own (that's slower but you get a fully up-to-date Docker image).
+The `ageron/handson-mlp` images on Docker Hub follow the upstream repository. They are useful for the upstream notebooks, but they are not guaranteed to contain this fork's Polars-specific dependency set. For the Polars branch, build your own image from the local checkout. The standard image uses the base locked dependencies; hardware-specific optional extras such as Appendix B's `quantization` dependencies are not required for the core image and should only be added when the target platform supports them.
 
 ### Download an existing image
 
@@ -33,7 +35,7 @@ Assuming you have already downloaded the project locally in your home folder:
 ```bash
 cd  # go to your home folder
 cd handson-mlp
-docker build -t ageron/handson-mlp:cpu -f docker/Dockerfile --build-arg PT_VARIANT=cpu .
+docker build -t handson-mlp-polars:cpu -f docker/Dockerfile --build-arg PT_VARIANT=cpu .
 ```
 
 If you want to build the Nvidia CUDA 12.6 variant, replace `cpu` with `cu126`. In the commands below, I'll use `cpu`, but you can replace `cpu` with the appropriate variant for your hardware.
@@ -42,7 +44,7 @@ If you want to build the Nvidia CUDA 12.6 variant, replace `cpu` with `cu126`. I
 
 This will take quite a while and download gigabytes of data, but it is only required once.
 
-After the process is finished you have an `ageron/handson-mlp:cpu` image (or `:cu126`): it will be the base for your experiments. You can confirm that by running the following command:
+After the process is finished you have a `handson-mlp-polars:cpu` image (or the corresponding GPU variant): it will be the base for your experiments. You can confirm that by running the following command:
 
 ```bash
 docker images
@@ -52,7 +54,7 @@ This should output something like this:
 
 ```
 REPOSITORY            TAG         IMAGE ID            CREATED             SIZE
-ageron/handson-mlp    cpu         3ebafebc604a        2 minutes ago       2.09GB
+handson-mlp-polars    cpu         3ebafebc604a        2 minutes ago       2.09GB
 ```
 
 ### Run the notebooks
@@ -62,7 +64,7 @@ Run the following commands to start the Jupyter server inside the container (whi
 ```bash
 cd  # go to the folder containing the handson-mlp directory
 cd handson-mlp
-docker run -it --rm --name homlp -p 8888:8888 -v "$PWD":/content ageron/handson-mlp:cpu
+docker run -it --rm --name homlp -p 8888:8888 -v "$PWD":/content handson-mlp-polars:cpu
 ```
 
 If you are using an Nvidia GPU, you must add `--gpus all` to the list of options.

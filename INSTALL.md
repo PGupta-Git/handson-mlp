@@ -1,14 +1,16 @@
 # Installation
 
-To run these notebooks, there's **no need to install anything**: you can just run them in your browser, using Google Colab:
+These instructions are for the community-maintained [Polars fork](https://github.com/PGupta-Git/handson-mlp/tree/polars_integration) of `ageron/handson-mlp`. The upstream project is still the canonical source for the book, while this branch keeps the notebooks current with Polars 2.x. The upstream README-link proposal is [ageron/handson-mlp#41](https://github.com/ageron/handson-mlp/pull/41).
 
-- <a href="https://colab.research.google.com/github/ageron/handson-mlp/blob/main/" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a> (recommended)
+To run these notebooks, there's **no need to install anything**: you can just run the Polars branch in your browser using Google Colab:
+
+- <a href="https://colab.research.google.com/github/PGupta-Git/handson-mlp/blob/polars_integration/" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open Polars fork in Colab"/></a> (recommended)
 
 Other platforms like Kaggle or Binder should work as well.
 
 However, if you really want to run these notebooks on your own machine, then please follow the instructions below.
 
-> NOTE: Alternatively, you can [run these notebooks in a docker container](https://github.com/ageron/handson-mlp/blob/main/docker/README.md).
+> NOTE: Alternatively, you can [run these notebooks in a Docker container](docker/README.md). For this Polars fork, build the image from your local checkout so its Python environment matches the fork.
 
 ## Step 1, ensure you have uv and git
 Make sure you have [uv](https://docs.astral.sh/uv/getting-started/installation) and [git](https://git-scm.com/downloads) installed:
@@ -20,9 +22,9 @@ Let's download the `handson-mlp` project into your home directory, install all t
 
 ```shell
 cd  # goes to your home directory
-git clone https://github.com/ageron/handson-mlp.git
+git clone --branch polars_integration https://github.com/PGupta-Git/handson-mlp.git
 cd handson-mlp
-uv sync --frozen  # installs all the required Python libraries
+uv sync --frozen  # installs the Polars fork's locked dependencies
 
 # On MacOS or Linux
 source .venv/bin/activate
@@ -35,6 +37,10 @@ source .venv/bin/activate
 
 python -m ipykernel install --user --name=python3  # make this the default
 ```
+
+The base environment above covers the core notebook dependencies. To reproduce Appendix B's CUDA 4-bit quantization cells on supported hardware, install the locked quantization extra with `uv sync --frozen --extra quantization`. Chapter 19's optional Box2D exercises use `uv sync --frozen --extra box2d`.
+
+Chapter 16's Gemini example requires a Gemini API key. For local runs, save only the key in `gemini_api_key.secret` at the repository root. Files matching `*.secret` are ignored by Git; do not hard-code or commit credentials. The Mistral v0.3 checkpoints used in Chapter 15 are public and do not require a Hugging Face token.
 
 If you get an error when activating the virtual environment in PowerShell, you may need to tweak the execution policy to allow PowerShell to execute scripts (this only applies to this terminal Window):
  
@@ -86,7 +92,7 @@ You may also want to install the Box2D library, which is needed for a couple of 
 cd
 cd handson-mlp
 source .venv/bin/activate  # on Windows, replace with same command as in step 2
-uv sync --extra box2d
+uv sync --frozen --extra box2d
 ```
 
 This should work on most platforms. However, if you get an error, then it most likely means that the binary for your platform is not available, so you must build this library from the source code. For this, you first need to ensure that you have the essential tools for building a C++ project. For example, on Debian and Ubuntu you can open a terminal and run:
@@ -105,10 +111,10 @@ uv add swig
 uv add box2d-py
 ```
 
-For Appendix B, `uv sync --extra quantization` installs `bitsandbytes` and
+For Appendix B, `uv sync --frozen --extra quantization` installs `bitsandbytes` and
 `gguf`. Availability of quantization features depends on your hardware and
 platform. For Chapter 19's legacy Anaconda Atari setup,
-`uv sync --extra legacy-atari` installs `AutoROM`. These extras are optional; you can combine
+`uv sync --frozen --extra legacy-atari` installs `AutoROM`. These extras are optional; you can combine
 them by passing multiple `--extra` options.
 
 Appendix E's `causal-conv1d` and `mamba-ssm` packages still require the manual
@@ -117,14 +123,15 @@ are specific to Python 3.12 and cannot be used with Python 3.13.
 
 ## Update this project and its libraries
 
-I regularly update the notebooks to fix issues and add support for the latest library versions. So make sure you update this project regularly.
+The Polars fork is maintained to track upstream notebook changes and current supported library APIs. Update the checkout regularly so your notebooks and lockfile stay aligned with the maintained `polars_integration` branch.
 
 For this, open a terminal, and run:
 
 ```shell
 cd
 cd handson-mlp
-git pull
+git switch polars_integration
+git pull --ff-only origin polars_integration
 ```
 
 If you get an error, it's probably because you modified a notebook. In this case, before running `git pull` you will first need to commit your changes. I recommend doing this in your own branch, or else you may get conflicts:
@@ -133,8 +140,8 @@ If you get an error, it's probably because you modified a notebook. In this case
 git checkout -b my_branch # you can use another branch name if you want
 git add -u
 git commit -m "describe your changes here"
-git checkout main
-git pull
+git switch polars_integration
+git pull --ff-only origin polars_integration
 ```
 
 Next, let's update the libraries:
