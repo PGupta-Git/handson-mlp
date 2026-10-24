@@ -10,6 +10,12 @@ The `polars_integration` branch keeps the upstream material intact while updatin
 * scikit-learn is kept at 1.9.1 or newer so Polars input/output uses the current Narwhals interoperability path;
 * Matplotlib and vector-oriented Seaborn calls consume Polars `Series` directly instead of converting plotting data through pandas;
 * direct runtime dependencies used by the notebooks, including PyArrow and Stable-Baselines3's Rich progress output, are declared explicitly;
+* the notebook index links to the Polars tutorial and the current Chapter 18 and Chapter 19 notebook filenames;
+* the index introduces Polars in its prerequisites, removes a broken Kaggle launch link, and the retained tutorial badge and book cover have descriptive alternative text;
+* the Polars tutorial distinguishes transformations that return new DataFrames from explicit in-place methods;
+* Chapter 19's LunarLander exercise and installation instructions use the supported `LunarLander-v3` environment;
+* local and Docker CUDA installation commands retain the project's PyTorch compatibility bounds and resolve before replacing the installed family;
+* Docker uses the checkout's Python version and frozen lockfile, with Box2D enabled only through its declared optional extra rather than metadata-mutating build steps;
 * the PyTorch family is currently capped below 2.10 because Appendix B still demonstrates eager-mode `torch.ao.quantization`, which PyTorch plans to remove in 2.10; and
 * external-service examples are kept executable with current public model/API identifiers, while local credentials remain outside version control.
 

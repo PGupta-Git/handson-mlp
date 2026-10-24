@@ -48,20 +48,21 @@ If you get an error when activating the virtual environment in PowerShell, you m
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 
-## Step 3, if you have a GPU, upgrade the PyTorch libraries
-If you have a GPU, make sure its driver is properly installed (please see your GPU manufacter's instructions for more details).
+## Step 3, select a GPU-enabled PyTorch build if needed
+If you have an Nvidia GPU, make sure its driver is properly installed. You do not need to replace PyTorch just because a GPU is present; first check whether the installed build already supports your hardware.
 
-Next, you must upgrade the PyTorch libraries for GPU support:
+To select a different CUDA build, keep the compatibility bounds from `pyproject.toml`. The commands below ask uv to resolve a compatible PyTorch family before replacing the installed packages, rather than uninstalling a working environment first:
 
 ```shell
 cd
 cd handson-mlp
 source .venv/bin/activate  # on Windows, replace with same command as in step 2
-uv pip uninstall torch torchvision torchaudio
 
-# For an Nvidia CUDA 12.9 GPU (for other CUDA platforms, replace cu129 as needed)
-uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu129
+# For an Nvidia CUDA 12.9 GPU (choose a backend supported by your driver)
+uv pip install --torch-backend cu129 --reinstall-package torch --reinstall-package torchvision --reinstall-package torchaudio "torch>=2.8.0,<2.10.0" "torchvision>=0.23.0,<0.25.0" "torchaudio>=2.8.0,<2.10.0"
 ```
+
+[`--torch-backend`](https://docs.astral.sh/uv/guides/integration/pytorch/#automatic-backend-selection) selects the PyTorch index without redirecting unrelated packages away from PyPI. Keep these bounds aligned with `pyproject.toml` when updating the fork. A later `uv sync --frozen` restores the lockfile's builds, so reapply the CUDA selection afterward if needed.
 
 **NOTE**: If you have a MacBook with MPS support ([Metal Performance Shaders](https://developer.apple.com/documentation/metalperformanceshaders)) then you don't need to upgrade the PyTorch libraries, as the default versions support MPS out of the box.
 
@@ -86,7 +87,7 @@ You can optionally install the following softwares as well:
 * [imagemagick](https://imagemagick.org/): used in the Matplotlib tutorial, if you want to export an animation as a .gif file.
 * [graphviz](https://graphviz.org/): used in Chapter 5 if you want to generate an image from a .dot file.
 
-You may also want to install the Box2D library, which is needed for a couple of exercises in Chapter 19, to load the LunarLander-v2 and BipedalWalker-v3 environments. You can generally install it by opening a terminal and running:
+You may also want to install the Box2D library, which is needed for a couple of exercises in Chapter 19, to load the LunarLander-v3 and BipedalWalker-v3 environments. You can install the declared extra by opening a terminal and running:
 
 ```shell
 cd
@@ -95,21 +96,9 @@ source .venv/bin/activate  # on Windows, replace with same command as in step 2
 uv sync --frozen --extra box2d
 ```
 
-This should work on most platforms. However, if you get an error, then it most likely means that the binary for your platform is not available, so you must build this library from the source code. For this, you first need to ensure that you have the essential tools for building a C++ project. For example, on Debian and Ubuntu you can open a terminal and run:
+The locked `Box2D==2.3.10` release provides wheels but no source distribution. If no wheel matches your Python version and platform, use a combination with a published wheel or omit the optional extra. Installing a different Box2D provider with `uv add` would change the project and lockfile rather than reproduce this environment. The core notebooks do not require Box2D.
 
-```shell
-apt update && apt install -y build-essential cmake
-```
-
-Then you can install the `box2d-py` package (not `box2d`) from source:
-
-```shell
-cd
-cd handson-mlp
-source .venv/bin/activate  # on Windows, replace with same command as in step 2
-uv add swig
-uv add box2d-py
-```
+The current Box2D wheel also emits SWIG deprecation warnings on the tested Python 3.12.12/Linux environment. LunarLander-v3 reset and step were verified with those warnings visible, but promoting them to errors with `python -W error` caused a native-import crash. Strict warnings-as-errors execution is therefore not supported by that wheel in this environment; these instructions do not add a warning-suppression workaround.
 
 For Appendix B, `uv sync --frozen --extra quantization` installs `bitsandbytes` and
 `gguf`. Availability of quantization features depends on your hardware and

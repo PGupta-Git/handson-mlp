@@ -38,7 +38,15 @@ cd handson-mlp
 docker build -t handson-mlp-polars:cpu -f docker/Dockerfile --build-arg PT_VARIANT=cpu .
 ```
 
-If you want to build the Nvidia CUDA 12.6 variant, replace `cpu` with `cu126`. In the commands below, I'll use `cpu`, but you can replace `cpu` with the appropriate variant for your hardware.
+The build uses the checkout's `.python-version` and frozen lockfile without adding or removing project dependencies. Box2D is optional. To include Chapter 19's Box2D exercises, build with the declared `box2d` extra:
+
+```bash
+docker build -t handson-mlp-polars:cpu -f docker/Dockerfile --build-arg PT_VARIANT=cpu --build-arg WITH_BOX2D=true .
+```
+
+The locked Box2D release is wheel-only. If your target platform has no compatible wheel, leave `WITH_BOX2D` disabled or select a supported Python/platform combination. The core notebooks do not require this extra.
+
+If you want to build the Nvidia CUDA 12.6 variant, replace `cpu` with `cu126`. The CUDA installation retains the PyTorch compatibility bounds declared in `pyproject.toml`; keep the Dockerfile and local GPU instructions aligned with those bounds when updating the fork. CUDA builds replace the lockfile's PyTorch family with compatible backend-specific wheels. In the commands below, I'll use `cpu`, but you can replace it with the appropriate variant for your hardware.
 
 > NOTE: You can see the list of available variants by visiting [PyTorch's download page](https://pytorch.org/get-started/locally/) and selecting Linux (even if you are on Windows or MacOS).
 
