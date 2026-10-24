@@ -78,6 +78,18 @@ jupyter notebook
 
 To stop the server, press Ctrl-C in the terminal window (be sure to save your changes first).
 
+## Export the Polars tutorial as accessible HTML
+
+The six plots in `tools_polars.ipynb` have descriptions stored in their plotting cells' `alt` metadata, separate from the executable code and image data.
+
+From the project directory, with the environment activated, export the tutorial using the Classic template:
+
+```shell
+python -m nbconvert tools_polars.ipynb --to html --template classic
+```
+
+This creates `tools_polars.html` without executing the notebook. In the locked nbconvert 7.16.6 environment, the Classic template includes the descriptions as image alternative text. The default Lab template does not read this metadata and still emits missing-alt-text warnings; use the explicit Classic export above rather than suppressing the warnings.
+
 
 ## Optional softwares and libraries
 
@@ -99,6 +111,8 @@ uv sync --frozen --extra box2d
 The locked `Box2D==2.3.10` release provides wheels but no source distribution. If no wheel matches your Python version and platform, use a combination with a published wheel or omit the optional extra. Installing a different Box2D provider with `uv add` would change the project and lockfile rather than reproduce this environment. The core notebooks do not require Box2D.
 
 The current Box2D wheel also emits SWIG deprecation warnings on the tested Python 3.12.12/Linux environment. LunarLander-v3 reset and step were verified with those warnings visible, but promoting them to errors with `python -W error` caused a native-import crash. Strict warnings-as-errors execution is therefore not supported by that wheel in this environment; these instructions do not add a warning-suppression workaround.
+
+The wheel's generated wrapper identifies SWIG 4.3.0. SWIG documents a matching warnings-as-errors regression in [issue #3061](https://github.com/swig/swig/issues/3061), with the warning fixes included in [SWIG 4.4.0](https://github.com/swig/swig/blob/v4.4.0/CHANGES.current). This is consistent with the observed Box2D failure, but its exact native crash path has not been debugged. PyPI still lists [Box2D 2.3.10](https://pypi.org/project/Box2D/2.3.10/) as the latest release, so there is no newer published version to select within the declared extra. Installing a newer SWIG on the host does not regenerate the compiled wrapper inside an existing wheel.
 
 For Appendix B, `uv sync --frozen --extra quantization` installs `bitsandbytes` and
 `gguf`. Availability of quantization features depends on your hardware and

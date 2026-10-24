@@ -12,10 +12,12 @@ The `polars_integration` branch keeps the upstream material intact while updatin
 * direct runtime dependencies used by the notebooks, including PyArrow and Stable-Baselines3's Rich progress output, are declared explicitly;
 * the notebook index links to the Polars tutorial and the current Chapter 18 and Chapter 19 notebook filenames;
 * the index introduces Polars in its prerequisites, removes a broken Kaggle launch link, and the retained tutorial badge and book cover have descriptive alternative text;
+* the Polars tutorial's six stored plots have descriptive cell-level alternative text for Classic HTML exports, without changing executable code or image data;
 * the Polars tutorial distinguishes transformations that return new DataFrames from explicit in-place methods;
 * Chapter 19's LunarLander exercise and installation instructions use the supported `LunarLander-v3` environment;
 * local and Docker CUDA installation commands retain the project's PyTorch compatibility bounds and resolve before replacing the installed family;
-* Docker uses the checkout's Python version and frozen lockfile, with Box2D enabled only through its declared optional extra rather than metadata-mutating build steps;
+* Docker includes the checkout's Python-version file through its build-context allowlist and uses the frozen lockfile, with separate core and optional Box2D images verified through runtime and Jupyter smoke checks;
+* the optional Box2D wheel's strict-warning limitation is documented against the matching upstream SWIG regression, without replacing the provider or suppressing warnings;
 * the PyTorch family is currently capped below 2.10 because Appendix B still demonstrates eager-mode `torch.ao.quantization`, which PyTorch plans to remove in 2.10; and
 * external-service examples are kept executable with current public model/API identifiers, while local credentials remain outside version control.
 

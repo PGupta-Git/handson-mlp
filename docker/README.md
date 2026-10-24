@@ -8,6 +8,8 @@ If you would like to run and tweak the book's notebooks in a Docker container, y
 
 You must first [Install Docker](https://docs.docker.com/engine/installation/).
 
+For Docker Desktop on Linux, start Docker Desktop before building. If your active context points to another engine, use `docker --context desktop-linux` in place of `docker` in the commands below.
+
 If you have an Nvidia GPU and you're on Linux (or [WSL on Windows](https://learn.microsoft.com/en-us/windows/wsl/install)), then you can use your GPU inside the Docker container. For this, you must ensure that you have the [latest drivers for your GPU](https://www.nvidia.com/drivers/), and install the [Nvidia Container Toolkit](https://github.com/NVIDIA/nvidia-container-toolkit) so Docker can access the GPU.
 
 Below, I will assume that your Docker setup is functional and supports your GPU (if any).
@@ -38,10 +40,14 @@ cd handson-mlp
 docker build -t handson-mlp-polars:cpu -f docker/Dockerfile --build-arg PT_VARIANT=cpu .
 ```
 
-The build uses the checkout's `.python-version` and frozen lockfile without adding or removing project dependencies. Box2D is optional. To include Chapter 19's Box2D exercises, build with the declared `box2d` extra:
+The build uses the checkout's `.python-version` and frozen lockfile without adding or removing project dependencies.
+
+The build context allowlist includes `.python-version` but excludes notebooks, host environments, and local secret files. On Linux/amd64, the locked PyTorch 2.8.0 wheel includes the CUDA 12.8 runtime even in the `cpu` image. This image runs on CPU without a GPU, but it is not a CPU-only wheel set or a GPU execution test.
+
+Box2D is optional. To include Chapter 19's Box2D exercises, build with the declared `box2d` extra:
 
 ```bash
-docker build -t handson-mlp-polars:cpu -f docker/Dockerfile --build-arg PT_VARIANT=cpu --build-arg WITH_BOX2D=true .
+docker build -t handson-mlp-polars:cpu-box2d -f docker/Dockerfile --build-arg PT_VARIANT=cpu --build-arg WITH_BOX2D=true .
 ```
 
 The locked Box2D release is wheel-only. If your target platform has no compatible wheel, leave `WITH_BOX2D` disabled or select a supported Python/platform combination. The core notebooks do not require this extra.
@@ -75,6 +81,8 @@ cd handson-mlp
 docker run -it --rm --name homlp -p 8888:8888 -v "$PWD":/content handson-mlp-polars:cpu
 ```
 
+To use the optional Box2D image, replace `handson-mlp-polars:cpu` with `handson-mlp-polars:cpu-box2d` in the run command.
+
 If you are using an Nvidia GPU, you must add `--gpus all` to the list of options.
 
 Next, just point your browser to the URL printed on the screen (e.g., `http://127.0.0.1:8888/lab?token=ecaf97203325417dfe17e0824cb80e34cafcaa52e74485b0`), and you're ready to play with the book's code!
@@ -84,6 +92,19 @@ The project directory (in your home folder) is mapped to the `/content` director
 You can close the server by pressing `Ctrl-C` in the terminal window.
 
 This will remove the container so you can start a new one later (but it will not remove the image or the notebooks, don't worry!).
+
+### Verified configuration and limits
+
+On October 24, 2026, both images were built on Linux/amd64 using Docker Engine 29.8.2 through Docker Desktop. The frozen environment selected Python 3.12.15, Polars 2.0.0, scikit-learn 1.9.1, PyTorch 2.8.0, JupyterLab 4.5.0, and Jupyter Server 2.17.0.
+
+The checks exercised:
+
+* Polars expression-based features passed to scikit-learn for fitting and held-out predictions, plus a PyTorch CPU tensor calculation, with Python warnings treated as errors;
+* authenticated JupyterLab HTTP startup for both images, followed by a real notebook kernel executing a Polars/scikit-learn prediction through Chrome in the base image;
+* the optional image's Gymnasium 1.2.2 / Box2D 2.3.10 `LunarLander-v3` reset and step, with dependency warnings visible; and
+* unchanged project, lockfile, and Python-version inputs inside the base image.
+
+These checks do not verify GPU execution or every notebook's training workload. Box2D still has the [strict-warning native-import limitation](../INSTALL.md#optional-softwares-and-libraries), and Pygame reports a deprecated `pkg_resources` import during the optional exercise. No warning suppression or substitute Box2D provider is included.
 
 Have fun!
 
